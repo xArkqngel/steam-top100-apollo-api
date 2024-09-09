@@ -6,7 +6,6 @@ import cors from "cors";
 
 import data from "../public/games.json" assert { type: "json" };
 
-// Transform tags function
 const transformTags = (tags) => {
   return Object.keys(tags).map((key) => ({
     name: key,
@@ -14,7 +13,6 @@ const transformTags = (tags) => {
   }));
 };
 
-// Define your resolvers
 const resolvers = {
   Query: {
     game: (_, { id }) => {
@@ -22,33 +20,48 @@ const resolvers = {
       if (game && game.tags) {
         game.tags = transformTags(game.tags);
       }
-      return game;
+      return { id, ...game };
     },
     games: () => {
-      return Object.values(data)
-        .filter((game) => !game.is_dlc) // Filter non-DLC games
-        .map((game) => {
+      return Object.entries(data)
+        .filter(([_, game]) => !game.is_dlc)
+        .map(([id, game]) => {
           if (game.tags) {
             game.tags = transformTags(game.tags);
           }
-          return game;
+          return { id, ...game };
         });
     },
     dlcs: () => {
-      return Object.values(data)
-        .filter((game) => game.is_dlc) // Filter DLC games
-        .map((game) => {
+      return Object.entries(data)
+        .filter(([_, game]) => game.is_dlc)
+        .map(([id, game]) => {
           if (game.tags) {
             game.tags = transformTags(game.tags);
           }
-          return game;
+          return { id, ...game };
         });
+    },
+    game_dlcs: (_, { id }) => {
+      const game_dlc_list = data[id].dlc;
+      return game_dlc_list.map((dlc_id) => {
+        const dlc = data[dlc_id];
+        if (dlc.tags) {
+          dlc.tags = transformTags(dlc.tags);
+        }
+        return { id: dlc_id, ...dlc };
+      });
     },
   },
 };
 
-// Define your schema
 const typeDefs = gql`
+  type Query {
+    game(id: ID!): Game
+    games: [Game]
+    dlcs: [Game]
+    game_dlcs(id: ID!): [Game]
+  }
   type Game {
     id: ID
     name: String
@@ -86,12 +99,6 @@ const typeDefs = gql`
     discount: String
     peak_ccu: Int
     tags: [Tag]
-  }
-
-  type Query {
-    game(id: ID!): Game
-    games: [Game]
-    dlcs: [Game]
   }
 
   type Achievements {
