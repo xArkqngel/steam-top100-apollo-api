@@ -24,6 +24,14 @@ const resolvers = {
       }
       return game;
     },
+    games: () => {
+      return data.map((game, index) => {
+        if (game.tags) {
+          game.tags = transformTags(game.tags);
+        }
+        return game;
+      });
+    },
   },
 };
 
