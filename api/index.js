@@ -25,12 +25,24 @@ const resolvers = {
       return game;
     },
     games: () => {
-      return data.map((game, index) => {
-        if (game.tags) {
-          game.tags = transformTags(game.tags);
-        }
-        return game;
-      });
+      return Object.values(data)
+        .filter((game) => !game.is_dlc) // Filter non-DLC games
+        .map((game) => {
+          if (game.tags) {
+            game.tags = transformTags(game.tags);
+          }
+          return game;
+        });
+    },
+    dlcs: () => {
+      return Object.values(data)
+        .filter((game) => game.is_dlc) // Filter DLC games
+        .map((game) => {
+          if (game.tags) {
+            game.tags = transformTags(game.tags);
+          }
+          return game;
+        });
     },
   },
 };
@@ -79,6 +91,7 @@ const typeDefs = gql`
   type Query {
     game(id: ID!): Game
     games: [Game]
+    dlcs: [Game]
   }
 
   type Achievements {
