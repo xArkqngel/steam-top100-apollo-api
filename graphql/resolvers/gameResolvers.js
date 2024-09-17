@@ -48,15 +48,23 @@ const gameResolvers = {
     },
     searchGames: (_, { query, maxResults }) => {
       const normalizedQuery = query.toLowerCase();
-      const filteredGames = Object.entries(data)
-        .filter(([_, game]) =>
-          game.name?.toLowerCase().includes(normalizedQuery)
+      const games = Object.entries(data)
+        .filter(
+          ([_, game]) =>
+            game.name?.toLowerCase().includes(normalizedQuery) && !game.is_dlc
         )
         .map(([id, game]) => ({ id, ...game }));
+      const dlcs = Object.entries(data)
+        .filter(
+          ([_, game]) =>
+            game.name?.toLowerCase().includes(normalizedQuery) && game.is_dlc
+        )
+        .map(([id, game]) => ({ id, ...game }));
+      const combinedResults = [...games, ...dlcs];
       if (maxResults) {
-        return filteredGames.slice(0, maxResults);
+        return combinedResults.slice(0, maxResults);
       }
-      return filteredGames;
+      return combinedResults;
     },
   },
 };
