@@ -1,4 +1,4 @@
-import data from "../../../public/games.json" assert { type: "json" };
+import data from "../../public/games.json" assert { type: "json" };
 
 const transformTags = (tags) => {
   return Object.keys(tags).map((key) => ({
