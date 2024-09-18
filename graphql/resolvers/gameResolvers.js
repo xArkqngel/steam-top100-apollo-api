@@ -1,9 +1,9 @@
 import data from "../../public/games.json" assert { type: "json" };
 
 const transformTags = (tags) => {
-  return Object.keys(tags).map((key) => ({
+  return Object.entries(tags).map(([key, value]) => ({
     name: key,
-    count: tags[key],
+    count: parseInt(value),
   }));
 };
 
